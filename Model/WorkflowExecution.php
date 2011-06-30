@@ -17,6 +17,8 @@ use Vespolina\WorkflowBundle\Model\WorkflowExecutionInterface;
 class WorkflowExecution implements WorkflowExecutionInterface
 {
     protected $container;
+    protected $log;
+    protected $isSuspended;
     protected $name;
     protected $status;
     protected $workflowExecutionId;
@@ -47,6 +49,7 @@ class WorkflowExecution implements WorkflowExecutionInterface
         $this->name = $name;
         $this->container->set('workflow.name', $this->name);
 
+        $this->log = array();
     }
 
     /**
@@ -54,14 +57,23 @@ class WorkflowExecution implements WorkflowExecutionInterface
      */
     public function getConfigurationName()
     {
+
         return $this->name;
     }
+
+    public function getLog()
+    {
+
+        return $this->log;
+    }
+
 
     /**
      * @inheritdoc
      */
     public function getWorkflowContainer()
     {
+
         return $this->container;
     }
 
@@ -70,6 +82,7 @@ class WorkflowExecution implements WorkflowExecutionInterface
      */
     public function getWorkflowRuntimeDefinition()
     {
+
         return $this->workflowRuntimeDefinition;
     }
 
@@ -78,7 +91,42 @@ class WorkflowExecution implements WorkflowExecutionInterface
      */
     public function getWorkflowRuntimeExecution()
     {
+
         return $this->workflowRuntimeExecution;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function logWorkflowActivityMessage(WorkflowActivityInterface $workflowActivity, $message, $type)
+    {
+
+        $this->log[] = array($message, $type, $workflowActivity);
+
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setConfigurationName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setWorkflowExecutionId($workflowExecutionId)
+    {
+        $this->workflowExecutionId = $workflowExecutionId;
+    }
+
+    
+
+    public function setIsSuspended($isSuspended)
+    {
+        
+        $this->isSuspended = $isSuspended;
     }
 
     /**
@@ -107,11 +155,20 @@ class WorkflowExecution implements WorkflowExecutionInterface
 
 
     /**
-        * @inheritdoc
-        */
-       public function getIsExecutionFinished()
+     * @inheritdoc
+     */
+    public function getIsExecutionFinished()
     {
         return $this->isExecutionFinished;
+
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsSuspended()
+    {
+        return $this->isSuspended;
 
     }
 
@@ -123,22 +180,6 @@ class WorkflowExecution implements WorkflowExecutionInterface
         return $this->status;
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function setConfigurationName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setWorkflowExecutionId($workflowExecutionId)
-    {
-        $this->workflowExecutionId = $workflowExecutionId;
-    }
 
 
 }

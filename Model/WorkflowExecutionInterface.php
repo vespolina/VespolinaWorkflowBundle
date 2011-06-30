@@ -9,6 +9,8 @@
 
 namespace Vespolina\WorkflowBundle\Model;
 
+use Vespolina\WorkflowBundle\Model\WorkflowActivityInterface;
+
 interface WorkflowExecutionInterface
 {
     /**
@@ -20,14 +22,15 @@ interface WorkflowExecutionInterface
     function getConfigurationName();
 
     /**
-     * Return the workflow container
-     * @return Vespolina\WorkflowBundle\Model\WorkflowContainerInterface
+     * Returns whether or not the workflow has been suspended
+     *
      */
-    function getWorkflowContainer();
+    function getIsSuspended();
 
-    function getWorkflowRuntimeDefinition();
-    
-    function getWorkflowRuntimeExecution();
+    /**
+     * Get the workflow execution log
+     */
+    function getLog();
 
     /**
      * Get the current status of the overall workflow execution
@@ -38,10 +41,28 @@ interface WorkflowExecutionInterface
     function getStatus();
 
     /**
+     * Return the workflow container
+     * @return Vespolina\WorkflowBundle\Model\WorkflowContainerInterface
+     */
+    function getWorkflowContainer();
+
+    /**
+     * Get the runtime definition instance which is used to build this workflow execution instance
+     */
+    function getWorkflowRuntimeDefinition();
+    
+    function getWorkflowRuntimeExecution();
+
+    /**
      * Get the workflow execution id
      */
     function getWorkflowExecutionId();
 
+
+    /**
+     * Log a message coming from a workflow activity
+     */
+    function logWorkflowActivityMessage(WorkflowActivityInterface $workflowActivity, $message, $type);
 
     /**
      * Set the workflow configuration name
@@ -52,6 +73,8 @@ interface WorkflowExecutionInterface
      */
     function setConfigurationName($name);
 
+
+    function setIsSuspended($isSuspended);
 
     /**
      * Set the workflow runtime definition

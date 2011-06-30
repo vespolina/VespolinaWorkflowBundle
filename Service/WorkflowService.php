@@ -111,6 +111,10 @@ class WorkflowService extends ContainerAware implements WorkflowServiceInterface
         return $this->workflowConfigurations[$name];
     }
 
+    /**
+     * Todo: move to a better location
+     */
+
     public function setDbalConnection($dbalConnection)
     {
         $this->dbalConnection = $dbalConnection;
@@ -130,8 +134,7 @@ class WorkflowService extends ContainerAware implements WorkflowServiceInterface
             if ($runtimeExecution->isSuspended())
             {
 
-                //$workflowContainerData = $workflowExecution->getContainer()->getContainerData();
-                //$runtimeExecution->resume($workflowContainerData);
+                $runtimeExecution->resume();
 
 
             }else{
@@ -217,12 +220,15 @@ class WorkflowService extends ContainerAware implements WorkflowServiceInterface
         if (!$this->workflowFactory)
         {
 
-            $this->workflowFactory = new CustomWorkflowFactory();
+            $this->workflowFactory = new CustomWorkflowFactory($this->container);
 
-             //TODO: remove this evil OO hack (it sets a static attribute internally)
-            $this->workflowFactory->setDIContainer($this->container);
         }
     }
+
+
+
+
+
     /**
      * Get the workflow manager
      *

@@ -20,6 +20,7 @@ class WorkflowActivity implements WorkflowActivityInterface{
     protected $container;   //DI container
     protected $dispatcher;
     protected $isExecutionFinished;
+    protected $isSuspended;
     protected $name;
     protected $workflowContainer;
     protected $workflowExecution;
@@ -59,19 +60,25 @@ class WorkflowActivity implements WorkflowActivityInterface{
     {
         $this->init();
 
+        $this->log('activated');
+
         $this->execute();
 
-        $isExecutionFinished = $this->getIsExecutionFinished();
-        $isExecutionFinished = true;
-
-        if( $isExecutionFinished )
+        $isSuspended = $this->getIsSuspended();
+        
+        if( !$isSuspended )
         {
+            $this->log('completed');
 
             //Trigger completion event listeners
             $this->complete();
+        }else
+        {
+            $this->log('suspended');
+
         }
 
-         return $isExecutionFinished;
+         return !$isSuspended;
 
     }
 
@@ -88,6 +95,7 @@ class WorkflowActivity implements WorkflowActivityInterface{
      */
     public function getWorkflowContainer()
     {
+
         return $this->workflowContainer;
     }
 
@@ -96,7 +104,16 @@ class WorkflowActivity implements WorkflowActivityInterface{
      */
     public function getIsExecutionFinished()
     {
+
         return $this->isExecutionFinished;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function getIsSuspended()
+    {
+
+        return $this->isSuspended;
     }
 
     /**
@@ -127,7 +144,20 @@ class WorkflowActivity implements WorkflowActivityInterface{
      */
     public function setIsExecutionFinished($executionIsFinished)
     {
+
         return $this->isExecutionFinished = $executionIsFinished;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function suspend()
+    {
+
+        $this->isExecutionFinished = false;
+        $this->isSuspended = true;
+
+        $this->workflowExecution->setIsSuspended(true);
     }
 
     
@@ -139,7 +169,14 @@ class WorkflowActivity implements WorkflowActivityInterface{
             $event = new WorkflowActivityEvent($this);
             $this->eventDispatcher->dispatch('vespolina.workflow.activity.' . $name, $event);
         }
-      }
+    }
+
+    protected function log($message, $type = 'E')
+    {
+        //For now just delegate this to the workflow execution instance
+
+        $this->workflowExecution->logWorkflowActivityMessage($this, $this->name . ':' . $message, $type);
+    }
 
 
 }

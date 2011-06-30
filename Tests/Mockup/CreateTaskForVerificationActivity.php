@@ -29,6 +29,7 @@ class CreateTaskForVerificationActivity extends WorkflowActivity {
 
         $workflowTaskService->saveTask($task);
 
+        $this->log('A new verification task was created for James Bond 007');
     }
 
 }
