@@ -22,13 +22,13 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
      * @abstract
      * @return void
      */
-    public function activate();
+    function activate();
 
     /**
      * Complete this workflow activity.  This is typically invoked after the activity was executed succesful
      *
      */
-    public function complete();
+    function complete();
 
     /**
      * Execute this workflow activity
@@ -36,20 +36,23 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
      * @abstract
      * @return void
      */
-    public function execute();
+    function execute();
 
     /**
      * Returns whether or not the execution for this activity has been ended
      */
     function getIsExecutionFinished();
 
+
+    function getIsSuspended();
+   
     /**
      * Get name of the current activity (eg. vespolina.event.paypal_payment)
      *
      * @abstract
      * @return void
      */
-    public function getName();
+    function getName();
 
     /**
      * Get the workflow container
@@ -57,7 +60,7 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
      * @abstract
      * @return void
      */
-    public function getWorkflowContainer();
+    function getWorkflowContainer();
 
 
     /**
@@ -66,7 +69,7 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
      * @abstract
      * @return void
      */
-    public function getWorkflowExecution();
+    function getWorkflowExecution();
 
     /**
      * Initialize this activity for activation & execution
@@ -74,7 +77,7 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
      * @abstract
      * @return void
      */
-    public function init();
+    function init();
 
 
     /**
@@ -83,4 +86,5 @@ interface WorkflowActivityInterface extends ContainerAwareInterface{
     function setIsExecutionFinished($isExecutionFinished);
 
 
+    function suspend();
 }

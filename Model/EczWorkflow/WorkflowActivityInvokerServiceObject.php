@@ -37,7 +37,7 @@ class WorkflowActivityInvokerServiceObject implements \ezcWorkflowServiceObject 
 
     public function execute( \ezcWorkflowExecution $execution )
     {
-
+      
         $workflowService = $this->container->get('vespolina.workflow');
 
         $workflowContainer = $execution->getVariable('WorkflowContainer');
@@ -50,11 +50,17 @@ class WorkflowActivityInvokerServiceObject implements \ezcWorkflowServiceObject 
                                             $workflowExecution,
                                             $this->eventDispatcher);
 
-        $workflowActivity->setContainer(CustomWorkflowFactory::getDIContainer());
+        $workflowActivity->setContainer($this->container);
 
-        //Activate the workflow activity, if for some reason it needs to be suspended because it can't complete
-        //false will be returned
-        return $workflowActivity->activate();
+        // Activate (and execute) the workflow activity
+        $workflowActivity->activate();
+
+        /** If we come here normally execution should have been finished
+         * If for some reason the execution was suspended (eg. human interaction is required)
+         * the "is suspended" value will have been set to true
+         */
+
+        return !$workflowActivity->getIsSuspended();
                 
 
     }

@@ -36,11 +36,15 @@ class WorkflowTest extends WebTestCase
     public function testCreateWorkflowDBSchema()
     {
 
-        $dbalConn = $this->getKernel()->getContainer()->get('database_connection');
-        $options = new WorkflowOptions($prefix = 'wf_');
-        $schemaBuilder = new SchemaBuilder($dbalConn);
-        $schemaBuilder->dropWorkflowSchema($options);
-        $schemaBuilder->createWorkflowSchema($options);
+        if (true)
+        {
+
+            $dbalConn = $this->getKernel()->getContainer()->get('database_connection');
+            $options = new WorkflowOptions($prefix = 'wf_');
+            $schemaBuilder = new SchemaBuilder($dbalConn);
+            $schemaBuilder->dropWorkflowSchema($options);
+            $schemaBuilder->createWorkflowSchema($options);
+        }
 
     }
 
@@ -103,6 +107,8 @@ class WorkflowTest extends WebTestCase
 
         $workflowService->execute($workflowExecution);
 
+        //$this->dumpWorkflowExecutionLog($workflowExecution->getLog());
+
         //The workflow container 'total' value should have value 2
         $this->assertEquals($workflowExecution->getWorkflowContainer()->get('total'), 2);
 
@@ -122,6 +128,69 @@ class WorkflowTest extends WebTestCase
         //Verify that James Bond is assigned to the task
         $this->assertEquals($task->getAssignedTo()->getName(), $workflowAgentJamesBond->getName());
 
+        $this->displayWorkflowExecutionLog($workflowExecution);
+    }
+
+
+     public function test2WorkflowExecution()
+    {
+        /**
+         *
+         * Test scenario "test 2", workflow implementation can be found in Mockup\PHPTest2WorkflowBuilder.php
+
+         * Start => Activity1 (suspend to the database)
+         * Reactivate activity1 and test whether the user has set a discount value.
+         * If yes -> continue , if no ->suspend again
+         * Activity2 => End
+         */
+
+        $workflowService = $this->getKernel()->getContainer()->get('vespolina.workflow');
+        $workflowTaskService = $this->getKernel()->getContainer()->get('vespolina.workflow_task');
+
+        //The workflow service needs a DBAL connection to the database (Doctrine Extensions > Doctrine Workflow )
+        $workflowService->setDbalConnection($this->getKernel()->getContainer()->get('database_connection'));
+
+        $workflowConfiguration = $workflowService->getWorkflowConfiguration('test_2');
+        $workflowConfiguration->setBuilderClass('Vespolina\WorkflowBundle\Tests\Mockup\PHPTest2WorkflowBuilder');
+
+        //Save the workflow configuration to the database
+        $workflowService->saveConfiguration($workflowConfiguration);
+
+        //Create a workflow execution instance for the template workflow
+        $workflowExecution = $workflowService->createWorkflowExecution($workflowConfiguration);
+
+        //Verify that the workflow container holds the name of the workflow definition
+        $this->assertEquals($workflowExecution->getWorkflowContainer()->get('workflow.name'), 'test_2');
+
+        $workflowService->execute($workflowExecution);
+
+        //Verify if the workflow has been suspended (a workflow activity could not be completed)
+        $this->assertTrue($workflowExecution->getIsSuspended());
+
+
+        //Now the UI would ask the user to enter the discount and set the workflow container value
+        $workflowExecution->getWorkflowContainer()->set('discount', 5);
+
+        //Here we go again
+        $workflowService->execute($workflowExecution);
+
+        $this->displayWorkflowExecutionLog($workflowExecution);
+
+
+
+    }
+
+    protected function displayWorkflowExecutionLog($workflowExecution)
+    {
+        $workflowName = $workflowExecution->getWorkflowContainer()->get('workflow.name');
+        $workflowExecutionId = $workflowExecution->getWorkflowRuntimeExecution()->getId();
+
+        echo "\r\nWorkflow execution log: for workflow $workflowName with execution id $workflowExecutionId\r\n";
+
+        foreach($workflowExecution->getLog() as $item)
+        {
+            echo $item[0] . "\r\n";
+        }
 
     }
 

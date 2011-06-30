@@ -11,20 +11,19 @@ namespace Vespolina\WorkflowBundle\Tests\Mockup;
 
 use Vespolina\WorkflowBundle\Model\WorkflowActivity;
 
-class AddOneToTotalWorkflowActivity extends WorkflowActivity {
+class AskForDiscountValueWorkflowActivity extends WorkflowActivity {
 
     public function execute()
     {
 
-        if( !$total = $this->workflowContainer->get('total') )
+        if( !$discount = $this->workflowContainer->get('discount') )
         {
-            $total = 0;
+            $this->log('discount value is still empty, suspending activity');
+            $this->suspend();
+
         }
 
-        $total = $total + 1;
 
-        $this->workflowContainer->set('total', $total);
 
-        $this->log('total container was set to ' . $total);
     }
 }

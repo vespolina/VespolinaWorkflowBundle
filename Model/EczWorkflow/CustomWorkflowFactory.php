@@ -18,16 +18,16 @@ class CustomWorkflowFactory extends \DoctrineExtensions\Workflow\WorkflowFactory
 
     protected static $DIContainer;
 
+    public function __construct($DIContainer)
+    {
+
+        CustomWorkflowFactory::$DIContainer = $DIContainer;
+    }
 
     public static function getDIContainer()
     {
 
         return CustomWorkflowFactory::$DIContainer;
-    }
-
-    public static function setDIContainer($container)
-    {
-        CustomWorkflowFactory::$DIContainer = $container;
     }
 
     /**
