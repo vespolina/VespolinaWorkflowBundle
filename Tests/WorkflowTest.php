@@ -25,12 +25,12 @@ class WorkflowTest extends WebTestCase
 
     public function getKernel(array $options = array())
     {
-        if (!$this->kernel) {
-            $this->kernel = $this->createKernel($options);
-            $this->kernel->boot();
+        if (!static::$kernel) {
+            static::$kernel = $this->createKernel($options);
+            static::$kernel->boot();
         }
 
-        return $this->kernel;
+        return static::$kernel;
     }
 
     public function testCreateWorkflowDBSchema()
